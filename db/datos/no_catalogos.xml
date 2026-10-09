@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <!--
   XML DE PRUEBA v0.1 - NO CATALOGOS
   Proyecto Cuenta de Ahorros - Bases de Datos I - IIS 2026
@@ -7,7 +7,6 @@
   (NumeroCuenta en Cuenta, ValorDocumentoIdentidad en Persona, User en Usuario).
 -->
 <NoCatalogos>
-
   <Personas>
     <!-- Duenos de cuenta (20) -->
     <Persona TipoDocuIdentidad="1" Nombre="Javith Aguero Hernandez" ValorDocumentoIdentidad="117370445" FechaNacimiento="1999-03-20" Email="aguerojavith@gmail.com" telefono1="85343403" telefono2="24197636"/>
@@ -73,7 +72,6 @@
     <Persona TipoDocuIdentidad="1" Nombre="Isabel Vargas Arias" ValorDocumentoIdentidad="480238946" FechaNacimiento="1963-10-22" Email="isabel.vargas@example.com" telefono1="73706700" telefono2="29105765"/>
     <Persona TipoDocuIdentidad="1" Nombre="Ignacio Navarro Calderon" ValorDocumentoIdentidad="283260659" FechaNacimiento="1979-02-11" Email="ignacio.navarro@example.net" telefono1="60975917" telefono2="25922794"/>
   </Personas>
-
   <Cuentas>
     <Cuenta ValorDocumentoIdentidadDelCliente="117370445" TipoCuentaId="1" NumeroCuenta="11000001" FechaCreacion="2020-10-13" Saldo="0.00"/>
     <Cuenta ValorDocumentoIdentidadDelCliente="598338045" TipoCuentaId="1" NumeroCuenta="11000002" FechaCreacion="2024-08-20" Saldo="5007.44"/>
@@ -99,9 +97,8 @@
     <Cuenta ValorDocumentoIdentidadDelCliente="163791203" TipoCuentaId="3" NumeroCuenta="11000022" FechaCreacion="2026-02-13" Saldo="121736.45"/>
     <Cuenta ValorDocumentoIdentidadDelCliente="208008572" TipoCuentaId="1" NumeroCuenta="11000023" FechaCreacion="2026-05-22" Saldo="44896.25"/>
     <Cuenta ValorDocumentoIdentidadDelCliente="112182052360" TipoCuentaId="1" NumeroCuenta="11000024" FechaCreacion="2026-05-28" Saldo="34083.64"/>
-    <Cuenta ValorDocumentoIdentidadDelCliente="611388967" TipoCuentaId="1" NumeroCuenta="11000025" FechaCreacion="2026-09-09" Saldo="62000.00"/>
+    <Cuenta ValorDocumentoIdentidadDelCliente="598338045" TipoCuentaId="1" NumeroCuenta="11000025" FechaCreacion="2026-09-09" Saldo="62000.00"/>
   </Cuentas>
-
   <Beneficiarios>
     <!-- 11000001 (dueno Javith Aguero Hernandez): 3 beneficiario(s) -->
     <Beneficiario NumeroCuenta="11000001" ValorDocumentoIdentidadBeneficiario="12738545" IdParentezco="5" Porcentaje="25"/>
@@ -179,8 +176,11 @@
     <!-- 11000025 (dueno Alejandro Herrera Brenes): 2 beneficiario(s) -->
     <Beneficiario NumeroCuenta="11000025" ValorDocumentoIdentidadBeneficiario="736021979" IdParentezco="6" Porcentaje="30"/>
     <Beneficiario NumeroCuenta="11000025" ValorDocumentoIdentidadBeneficiario="616500300" IdParentezco="1" Porcentaje="70"/>
+    <Beneficiario NumeroCuenta="11000002" ValorDocumentoIdentidadBeneficiario="12738545" IdParentezco="7" Porcentaje="50"/>
+    <Beneficiario NumeroCuenta="11000002" ValorDocumentoIdentidadBeneficiario="117370445" IdParentezco="7" Porcentaje="50"/>
+    <Beneficiario NumeroCuenta="11000012" ValorDocumentoIdentidadBeneficiario="12738545" IdParentezco="7" Porcentaje="50"/>
+    <Beneficiario NumeroCuenta="11000012" ValorDocumentoIdentidadBeneficiario="117370445" IdParentezco="7" Porcentaje="50"/>
   </Beneficiarios>
-
   <!-- interesesAcumulados, cantRetiros, cantDepositos, cantSinpeEntrantes y cantSinpeSalientes son
        atributos NUEVOS: la especificacion pide mostrarlos en la consulta de estados de cuenta. -->
   <Estados_de_Cuenta>
@@ -608,8 +608,8 @@
     <Estado_de_Cuenta NumeroCuenta="11000024" fechaInicio="2026-06-28" fechafin="2026-07-27" saldoinicial="20783.33" saldoMinimo="18283.33" saldo_final="29019.02" interesesAcumulados="152.36" cantRetiros="1" cantDepositos="4" cantSinpeEntrantes="3" cantSinpeSalientes="3"/>
     <Estado_de_Cuenta NumeroCuenta="11000024" fechaInicio="2026-07-28" fechafin="2026-08-27" saldoinicial="29019.02" saldoMinimo="16019.02" saldo_final="31735.84" interesesAcumulados="133.49" cantRetiros="8" cantDepositos="5" cantSinpeEntrantes="2" cantSinpeSalientes="1"/>
     <Estado_de_Cuenta NumeroCuenta="11000024" fechaInicio="2026-08-28" fechafin="2026-09-27" saldoinicial="31735.84" saldoMinimo="31735.84" saldo_final="34083.64" interesesAcumulados="264.47" cantRetiros="4" cantDepositos="2" cantSinpeEntrantes="2" cantSinpeSalientes="0"/>
+    <Estado_de_Cuenta NumeroCuenta="11000025" fechaInicio="2026-09-09" fechafin="2026-10-08" saldoinicial="62000.00" saldoMinimo="62000.00" saldo_final="62000.00" interesesAcumulados="0.00" cantRetiros="0" cantDepositos="0" cantSinpeEntrantes="0" cantSinpeSalientes="0"/>
   </Estados_de_Cuenta>
-
   <Usuarios>
     <Usuario User="jaguero" Pass="LaFacil" EsAdministrador="0" ValorDocId="117370445"/>
     <Usuario User="oaguero" Pass="VolcanPlaya53*" EsAdministrador="0" ValorDocId="12738545"/>
@@ -633,7 +633,6 @@
     <Usuario User="lherrera" Pass="TucanMontana96#" EsAdministrador="0" ValorDocId="529890445"/>
     <Usuario User="fquiros" Pass="MyPass123*" EsAdministrador="1" ValorDocId="130004000"/>
   </Usuarios>
-
   <!-- El administrador no aparece aqui: siempre puede ver todas las cuentas. -->
   <Usuarios_Ver>
     <UsuarioPuedeVer User="jaguero" NumeroCuenta="11000001"/>
@@ -664,6 +663,6 @@
     <UsuarioPuedeVer User="oaguero" NumeroCuenta="11000001"/>
     <UsuarioPuedeVer User="yrodriguez" NumeroCuenta="11000011"/>
     <UsuarioPuedeVer User="nherrera" NumeroCuenta="11000023"/>
+    <UsuarioPuedeVer User="vporras" NumeroCuenta="11000025"/>
   </Usuarios_Ver>
-
 </NoCatalogos>
