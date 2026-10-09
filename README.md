@@ -1,6 +1,6 @@
 # TP2 – Cuenta de Ahorros 
 
-## Inicialización de Base de Datos (linux) 
+## Inicialización de Base de Datos local (linux) 
 ### Crear contenedor Docker con la DB 
 En el root del proyecto:
 `sudo docker compose up -d`
