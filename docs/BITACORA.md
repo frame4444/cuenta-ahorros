@@ -82,7 +82,7 @@ No se encontraron errores durante la ejecución de los procedimientos de carga.
 ## Marco 4:20 - 9:50
 ### Beneficiarios
 Para esta sesión tenía planeado iniciar con el módulo de beneficiarios. Como escribir el módulo en sí, es un proceso relativamente fácil, pero bastante tedioso, pues solo toma tiempo ver la estructura del objeto, y crear el resto de clases habituales (`dto, repository, controller, etc.`) con respecto a eso. 
-Lo que si resulta un tanto más complicado, son las SP, pues es un área de trabajo nueva. Se creó el `05_sp_beneficiarios`. Ningún problema al respecto.
+Lo que si resulta mucho más complicado, son las SP, pues es un área de trabajo nueva. Se creó el `05_sp_beneficiarios`. Ningún problema al respecto. Pero tomó mucho tiempo.
 
 ### API Exception Handler
 Se implementó el handler de excepciones de la API.
@@ -93,3 +93,15 @@ De nuevo, un curl mostrando el listado de los 3 beneficiarios de la cuenta `jagu
 ### Problemas
 Tuve que hacer el merge de las branches del git manualmente. Fue mi primera vez entonces se me dificultó un poco, luego entendí como aceptar los cambios fácilmente y no hubo más problemas
 También, al acutalizar el xml, tuve que rehacer mi base de datos, Al volver a correr todos los scripts, absolutamente todo me dio error, estuve a nada de apagar mi computadora e irme a dormir. Por suerte lo volví a correr y funcionó sin cambiar nada, por suerte.
+
+# 9/10/26
+## Marco 1:00 PM - 5:00 PM
+### Módulo estado de cuenta
+Para finalizar el backend, se terminó el módulo de estado de cuenta... Creo que fue el módulo más fácil de implementar. Al igual que su SP. 
+Como siempre, curl para mostrar su funcionamiento:
+![[media/estado-cuenta.png]]
+El primer comando fue el curl de un estado de cuenta que no me pertenece, lo hice por error, pero queda de prueba que funciona el manejo de errores y autorización.
+El segundo es el inicio se sesión, y el tercero muestra el estado de cuenta. Es difícil de leer desde aquí, siendo un bloque de texto tan robusto, pero son los estados de cuenta desde el mes 2 hasta el 8.
+
+También adjunto el cookies.txt en el que el curl descarga la sesión, pues siempre sale en los comandos. Solameente muestra el id de sesión.
+![[media/cookies.png]]
