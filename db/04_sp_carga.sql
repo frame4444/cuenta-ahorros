@@ -28,25 +28,25 @@ BEGIN
         BEGIN TRANSACTION;
 
         INSERT dbo.TipoDocuIdentidad (Id, Nombre)
-        SELECT T.n.value('@Id', 'INT'), T.n.value('@Nombre', 'VARCHAR(64)')
+        SELECT T.n.value('(@Id)[1]', 'INT'), T.n.value('(@Nombre)[1]', 'VARCHAR(64)')
         FROM @x.nodes('//TipoDocuIdentidad') AS T(n)
         WHERE NOT EXISTS (SELECT 1 FROM dbo.TipoDocuIdentidad D
-                          WHERE D.Id = T.n.value('@Id', 'INT'));
+                          WHERE D.Id = T.n.value('(@Id)[1]', 'INT'));
         SET @nDoc = @@ROWCOUNT;
 
         INSERT dbo.TipoMoneda (Id, Nombre, Simbolo)
-        SELECT T.n.value('@Id', 'INT'), T.n.value('@Nombre', 'VARCHAR(32)'),
-               T.n.value('@Simbolo', 'NVARCHAR(4)')
+        SELECT T.n.value('(@Id)[1]', 'INT'), T.n.value('(@Nombre)[1]', 'VARCHAR(32)'),
+               T.n.value('(@Simbolo)[1]', 'NVARCHAR(4)')
         FROM @x.nodes('//TipoMoneda') AS T(n)
         WHERE NOT EXISTS (SELECT 1 FROM dbo.TipoMoneda M
-                          WHERE M.Id = T.n.value('@Id', 'INT'));
+                          WHERE M.Id = T.n.value('(@Id)[1]', 'INT'));
         SET @nMon = @@ROWCOUNT;
 
         INSERT dbo.Parentezco (Id, Nombre)
-        SELECT T.n.value('@Id', 'INT'), T.n.value('@Nombre', 'VARCHAR(32)')
+        SELECT T.n.value('(@Id)[1]', 'INT'), T.n.value('(@Nombre)[1]', 'VARCHAR(32)')
         FROM @x.nodes('//Parentezco') AS T(n)
         WHERE NOT EXISTS (SELECT 1 FROM dbo.Parentezco P
-                          WHERE P.Id = T.n.value('@Id', 'INT'));
+                          WHERE P.Id = T.n.value('(@Id)[1]', 'INT'));
         SET @nPar = @@ROWCOUNT;
 
         -- Tolerante a mayúsculas distintas en los atributos (el PDF mezcla estilos)
@@ -54,32 +54,28 @@ BEGIN
             (Id, Nombre, IdTipoMoneda, SaldoMinimo, MultaSaldoMin, CargoServicio,
              NumRetirosHumano, NumRetirosAutomatico, ComisionHumano, ComisionAutomatico,
              TasaInteresMensual)
-        SELECT T.n.value('@Id', 'INT'),
-               T.n.value('@Nombre', 'VARCHAR(64)'),
-               T.n.value('@IdTipoMoneda', 'INT'),
-               T.n.value('@SaldoMinimo', 'DECIMAL(18,2)'),
-               T.n.value('@MultaSaldoMin', 'DECIMAL(18,2)'),
-               COALESCE(T.n.value('@CargoAnual', 'DECIMAL(18,2)'),
-                        T.n.value('@CargoMensual', 'DECIMAL(18,2)')),
-               T.n.value('@NumRetirosHumano', 'INT'),
-               T.n.value('@NumRetirosAutomatico', 'INT'),
-               COALESCE(T.n.value('@comisionHumano', 'DECIMAL(18,2)'),
-                        T.n.value('@ComisionHumano', 'DECIMAL(18,2)')),
-               COALESCE(T.n.value('@comisionAutomatico', 'DECIMAL(18,2)'),
-                        T.n.value('@ComisionAutomatico', 'DECIMAL(18,2)')),
-               COALESCE(T.n.value('@interes', 'DECIMAL(9,4)'),
-                        T.n.value('@Interes', 'DECIMAL(9,4)'))
+        SELECT T.n.value('(@Id)[1]', 'INT'),
+               T.n.value('(@Nombre)[1]', 'VARCHAR(64)'),
+               T.n.value('(@IdTipoMoneda)[1]', 'INT'),
+               T.n.value('(@SaldoMinimo)[1]', 'DECIMAL(18,2)'),
+               T.n.value('(@MultaSaldoMin)[1]', 'DECIMAL(18,2)'),
+               CASE WHEN T.n.exist('@CargoAnual') = 1 THEN T.n.value('(@CargoAnual)[1]', 'DECIMAL(18,2)') ELSE T.n.value('(@CargoMensual)[1]', 'DECIMAL(18,2)') END,
+               T.n.value('(@NumRetirosHumano)[1]', 'INT'),
+               T.n.value('(@NumRetirosAutomatico)[1]', 'INT'),
+               CASE WHEN T.n.exist('@comisionHumano') = 1 THEN T.n.value('(@comisionHumano)[1]', 'DECIMAL(18,2)') ELSE T.n.value('(@ComisionHumano)[1]', 'DECIMAL(18,2)') END,
+               CASE WHEN T.n.exist('@comisionAutomatico') = 1 THEN T.n.value('(@comisionAutomatico)[1]', 'DECIMAL(18,2)') ELSE T.n.value('(@ComisionAutomatico)[1]', 'DECIMAL(18,2)') END,
+               CASE WHEN T.n.exist('@interes') = 1 THEN T.n.value('(@interes)[1]', 'DECIMAL(9,4)') ELSE T.n.value('(@Interes)[1]', 'DECIMAL(9,4)') END
         FROM @x.nodes('//TipoCuentaAhorro') AS T(n)
         WHERE NOT EXISTS (SELECT 1 FROM dbo.TipoCuentaAhorro C
-                          WHERE C.Id = T.n.value('@Id', 'INT'));
+                          WHERE C.Id = T.n.value('(@Id)[1]', 'INT'));
         SET @nCta = @@ROWCOUNT;
 
         INSERT dbo.TipoOperacionBitacora (Id, Nombre)
-        SELECT COALESCE(T.n.value('@Id', 'INT'), T.n.value('@id', 'INT')),
-               COALESCE(T.n.value('@Nombre', 'VARCHAR(64)'), T.n.value('@nombre', 'VARCHAR(64)'))
+        SELECT CASE WHEN T.n.exist('@Id') = 1 THEN T.n.value('(@Id)[1]', 'INT') ELSE T.n.value('(@id)[1]', 'INT') END,
+               CASE WHEN T.n.exist('@Nombre') = 1 THEN T.n.value('(@Nombre)[1]', 'VARCHAR(64)') ELSE T.n.value('(@nombre)[1]', 'VARCHAR(64)') END
         FROM @x.nodes('//TipoOperacion') AS T(n)
         WHERE NOT EXISTS (SELECT 1 FROM dbo.TipoOperacionBitacora O
-                          WHERE O.Id = COALESCE(T.n.value('@Id', 'INT'), T.n.value('@id', 'INT')));
+                          WHERE O.Id = CASE WHEN T.n.exist('@Id') = 1 THEN T.n.value('(@Id)[1]', 'INT') ELSE T.n.value('(@id)[1]', 'INT') END);
         SET @nOp = @@ROWCOUNT;
 
         COMMIT TRANSACTION;
@@ -121,43 +117,43 @@ BEGIN
         -- 1. Personas (dueños y beneficiarios comparten tabla)
         INSERT dbo.Persona (IdTipoDocuIdentidad, ValorDocumentoIdentidad, Nombre,
                             FechaNacimiento, Email, Telefono1, Telefono2)
-        SELECT T.n.value('@TipoDocuIdentidad', 'INT'),
-               T.n.value('@ValorDocumentoIdentidad', 'VARCHAR(32)'),
-               T.n.value('@Nombre', 'VARCHAR(64)'),
-               T.n.value('@FechaNacimiento', 'DATE'),
-               T.n.value('@Email', 'VARCHAR(128)'),
-               T.n.value('@telefono1', 'VARCHAR(16)'),
-               T.n.value('@telefono2', 'VARCHAR(16)')
+        SELECT T.n.value('(@TipoDocuIdentidad)[1]', 'INT'),
+               T.n.value('(@ValorDocumentoIdentidad)[1]', 'VARCHAR(32)'),
+               T.n.value('(@Nombre)[1]', 'VARCHAR(64)'),
+               T.n.value('(@FechaNacimiento)[1]', 'DATE'),
+               T.n.value('(@Email)[1]', 'VARCHAR(128)'),
+               T.n.value('(@telefono1)[1]', 'VARCHAR(16)'),
+               T.n.value('(@telefono2)[1]', 'VARCHAR(16)')
         FROM @x.nodes('/*/Personas/Persona') AS T(n)
         WHERE NOT EXISTS (SELECT 1 FROM dbo.Persona P
                           WHERE P.ValorDocumentoIdentidad =
-                                T.n.value('@ValorDocumentoIdentidad', 'VARCHAR(32)'));
+                                T.n.value('(@ValorDocumentoIdentidad)[1]', 'VARCHAR(32)'));
         SET @nPer = @@ROWCOUNT;
 
         -- 2. Cuentas (LEFT JOIN: si no resuelve la llave alterna, el NOT NULL falla y todo se revierte)
         INSERT dbo.Cuenta (NumeroCuenta, IdPersona, IdTipoCuentaAhorro, FechaCreacion, Saldo)
-        SELECT T.n.value('@NumeroCuenta', 'VARCHAR(16)'),
+        SELECT T.n.value('(@NumeroCuenta)[1]', 'VARCHAR(16)'),
                P.Id,
-               T.n.value('@TipoCuentaId', 'INT'),
-               T.n.value('@FechaCreacion', 'DATE'),
-               T.n.value('@Saldo', 'DECIMAL(18,2)')
+               T.n.value('(@TipoCuentaId)[1]', 'INT'),
+               T.n.value('(@FechaCreacion)[1]', 'DATE'),
+               T.n.value('(@Saldo)[1]', 'DECIMAL(18,2)')
         FROM @x.nodes('/*/Cuentas/Cuenta') AS T(n)
         LEFT JOIN dbo.Persona P
                ON P.ValorDocumentoIdentidad =
-                  T.n.value('@ValorDocumentoIdentidadDelCliente', 'VARCHAR(32)')
+                  T.n.value('(@ValorDocumentoIdentidadDelCliente)[1]', 'VARCHAR(32)')
         WHERE NOT EXISTS (SELECT 1 FROM dbo.Cuenta C
-                          WHERE C.NumeroCuenta = T.n.value('@NumeroCuenta', 'VARCHAR(16)'));
+                          WHERE C.NumeroCuenta = T.n.value('(@NumeroCuenta)[1]', 'VARCHAR(16)'));
         SET @nCta = @@ROWCOUNT;
 
         -- 3. Beneficiarios
         INSERT dbo.Beneficiario (IdCuenta, IdPersona, IdParentezco, Porcentaje)
         SELECT C.Id, P.Id,
-               T.n.value('@IdParentezco', 'INT'),
-               T.n.value('@Porcentaje', 'INT')
+               T.n.value('(@IdParentezco)[1]', 'INT'),
+               T.n.value('(@Porcentaje)[1]', 'INT')
         FROM @x.nodes('/*/Beneficiarios/Beneficiario') AS T(n)
-        LEFT JOIN dbo.Cuenta  C ON C.NumeroCuenta = T.n.value('@NumeroCuenta', 'VARCHAR(16)')
+        LEFT JOIN dbo.Cuenta  C ON C.NumeroCuenta = T.n.value('(@NumeroCuenta)[1]', 'VARCHAR(16)')
         LEFT JOIN dbo.Persona P ON P.ValorDocumentoIdentidad =
-                                   T.n.value('@ValorDocumentoIdentidadBeneficiario', 'VARCHAR(32)')
+                                   T.n.value('(@ValorDocumentoIdentidadBeneficiario)[1]', 'VARCHAR(32)')
         WHERE NOT EXISTS (SELECT 1 FROM dbo.Beneficiario B
                           WHERE B.IdCuenta = C.Id AND B.IdPersona = P.Id AND B.FlagActivo = 1);
         SET @nBen = @@ROWCOUNT;
@@ -167,29 +163,29 @@ BEGIN
             (IdCuenta, FechaInicio, FechaFin, SaldoInicial, SaldoMinimo, SaldoFinal,
              InteresesAcumulados, CantRetiros, CantDepositos, CantSinpeEntrantes, CantSinpeSalientes)
         SELECT C.Id,
-               T.n.value('@fechaInicio', 'DATE'),
-               T.n.value('@fechafin', 'DATE'),
-               T.n.value('@saldoinicial', 'DECIMAL(18,2)'),
-               T.n.value('@saldoMinimo', 'DECIMAL(18,2)'),
-               T.n.value('@saldo_final', 'DECIMAL(18,2)'),
-               T.n.value('@interesesAcumulados', 'DECIMAL(18,2)'),
-               T.n.value('@cantRetiros', 'INT'),
-               T.n.value('@cantDepositos', 'INT'),
-               T.n.value('@cantSinpeEntrantes', 'INT'),
-               T.n.value('@cantSinpeSalientes', 'INT')
+               T.n.value('(@fechaInicio)[1]', 'DATE'),
+               T.n.value('(@fechafin)[1]', 'DATE'),
+               T.n.value('(@saldoinicial)[1]', 'DECIMAL(18,2)'),
+               T.n.value('(@saldoMinimo)[1]', 'DECIMAL(18,2)'),
+               T.n.value('(@saldo_final)[1]', 'DECIMAL(18,2)'),
+               CASE WHEN T.n.exist('@interesesAcumulados') = 1 THEN T.n.value('(@interesesAcumulados)[1]', 'DECIMAL(18,2)') ELSE 0 END,
+               CASE WHEN T.n.exist('@cantRetiros') = 1 THEN T.n.value('(@cantRetiros)[1]', 'INT') ELSE 0 END,
+               CASE WHEN T.n.exist('@cantDepositos') = 1 THEN T.n.value('(@cantDepositos)[1]', 'INT') ELSE 0 END,
+               CASE WHEN T.n.exist('@cantSinpeEntrantes') = 1 THEN T.n.value('(@cantSinpeEntrantes)[1]', 'INT') ELSE 0 END,
+               CASE WHEN T.n.exist('@cantSinpeSalientes') = 1 THEN T.n.value('(@cantSinpeSalientes)[1]', 'INT') ELSE 0 END
         FROM @x.nodes('/*/Estados_de_Cuenta/Estado_de_Cuenta') AS T(n)
-        LEFT JOIN dbo.Cuenta C ON C.NumeroCuenta = T.n.value('@NumeroCuenta', 'VARCHAR(16)')
+        LEFT JOIN dbo.Cuenta C ON C.NumeroCuenta = T.n.value('(@NumeroCuenta)[1]', 'VARCHAR(16)')
         WHERE NOT EXISTS (SELECT 1 FROM dbo.EstadoCuenta E
                           WHERE E.IdCuenta = C.Id
-                            AND E.FechaInicio = T.n.value('@fechaInicio', 'DATE'));
+                            AND E.FechaInicio = T.n.value('(@fechaInicio)[1]', 'DATE'));
         SET @nEst = @@ROWCOUNT;
 
         -- 5. Usuarios (hash con salt; mismo cálculo que sp_Login)
         INSERT @U (Username, Pass, EsAdmin, Doc)
-        SELECT T.n.value('@User', 'VARCHAR(64)'),
-               T.n.value('@Pass', 'VARCHAR(128)'),
-               T.n.value('@EsAdministrador', 'INT'),
-               T.n.value('@ValorDocId', 'VARCHAR(32)')
+        SELECT T.n.value('(@User)[1]', 'VARCHAR(64)'),
+               T.n.value('(@Pass)[1]', 'VARCHAR(128)'),
+               T.n.value('(@EsAdministrador)[1]', 'INT'),
+               T.n.value('(@ValorDocId)[1]', 'VARCHAR(32)')
         FROM @x.nodes('/*/Usuarios/Usuario') AS T(n);
 
         INSERT dbo.Usuario (Username, Salt, PasswordHash, EsAdministrador, IdPersona)
@@ -206,8 +202,8 @@ BEGIN
         INSERT dbo.UsuarioPuedeVerCuenta (IdUsuario, IdCuenta)
         SELECT U.Id, C.Id
         FROM @x.nodes('/*/Usuarios_Ver/UsuarioPuedeVer') AS T(n)
-        LEFT JOIN dbo.Usuario U ON U.Username     = T.n.value('@User', 'VARCHAR(64)')
-        LEFT JOIN dbo.Cuenta  C ON C.NumeroCuenta = T.n.value('@NumeroCuenta', 'VARCHAR(16)')
+        LEFT JOIN dbo.Usuario U ON U.Username     = T.n.value('(@User)[1]', 'VARCHAR(64)')
+        LEFT JOIN dbo.Cuenta  C ON C.NumeroCuenta = T.n.value('(@NumeroCuenta)[1]', 'VARCHAR(16)')
         WHERE NOT EXISTS (SELECT 1 FROM dbo.UsuarioPuedeVerCuenta V
                           WHERE V.IdUsuario = U.Id AND V.IdCuenta = C.Id);
         SET @nVer = @@ROWCOUNT;
