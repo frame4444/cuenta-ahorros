@@ -1,0 +1,326 @@
+
+:root {
+    --primary: #183b70;
+    --primary-dark: #102849;
+    --accent: #2878cf;
+    --background: #f2f5fa;
+    --surface: #ffffff;
+    --text: #243449;
+    --muted: #65748a;
+    --border: #dce3ec;
+    --danger: #bb303b;
+    --radius: 12px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: var(--text);
+    background: var(--background);
+    display: flex;
+    flex-direction: column;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+header {
+    background: var(--primary-dark);
+    color: white;
+    padding: 22px max(24px, calc((100% - 1100px) / 2));
+    box-shadow: 0 3px 12px #142a451a;
+}
+
+header h1 {
+    font-size: 1.5rem;
+    margin: 0;
+    font-weight: 650;
+}
+
+nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+nav button {
+    background: transparent;
+    color: white;
+    border: 1px solid #ffffff55;
+    padding: 10px 16px;
+}
+
+nav button:hover,
+nav button.activo {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+main {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px;
+    flex: 1;
+}
+
+section {
+    margin-bottom: 24px;
+}
+
+h2 {
+    font-size: 1.6rem;
+    margin: 0 0 22px;
+    color: var(--primary-dark);
+}
+
+h3 {
+    font-size: 1.2rem;
+    margin: 0 0 16px;
+    color: var(--primary);
+}
+
+p {
+    line-height: 1.6;
+}
+
+#login {
+    max-width: 430px;
+    margin: 50px auto;
+    padding: 36px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 10px 35px #152d4b12;
+}
+
+#login h2 {
+    text-align: center;
+}
+
+#formLogin {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Formularios */
+
+label {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 12px 14px;
+    font: inherit;
+    color: var(--text);
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px #2878cf20;
+}
+
+input::placeholder {
+    color: #8996a7;
+}
+
+button {
+    padding: 12px 20px;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    color: white;
+    background: var(--primary);
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    transition: background 0.2s, transform 0.15s;
+}
+
+button:hover {
+    background: var(--accent);
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#formLogin button {
+    margin-top: 14px;
+    width: 100%;
+}
+
+/* Panel principal */
+
+#panel > section {
+    background: var(--surface);
+    padding: 28px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 16px #152d4b0a;
+}
+
+#usuarioActual {
+    color: var(--muted);
+    margin-top: -10px;
+    margin-bottom: 26px;
+}
+
+#numeroCuenta {
+    max-width: 420px;
+    margin: 10px 0 28px;
+}
+
+#listaCuentas,
+#listaBeneficiarios,
+#listaEstados {
+    display: grid;
+    gap: 14px;
+}
+
+.tarjeta {
+    padding: 20px;
+    background: #f9fbfe;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.tarjeta h4 {
+    color: var(--primary);
+    font-size: 1.05rem;
+    margin: 0 0 10px;
+}
+
+.tarjeta p {
+    margin: 6px 0;
+}
+
+.tarjeta button {
+    margin-top: 12px;
+    margin-right: 8px;
+}
+
+.tarjeta:hover {
+    border-color: #a9c7e8;
+}
+
+#formularioBeneficiario form {
+    display: grid;
+    gap: 14px;
+    margin-top: 24px;
+    padding: 22px;
+    background: #f9fbfe;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+#formularioBeneficiario button {
+    justify-self: start;
+}
+
+/* Mensajes */
+
+#mensaje:empty {
+    display: none;
+}
+
+#mensaje {
+    padding: 14px 18px;
+    margin: 0 0 20px;
+    background: #e8f1fd;
+    border: 1px solid #b7d3f5;
+    color: var(--primary);
+    border-radius: 8px;
+}
+
+#mensaje.error {
+    background: #fff0f0;
+    color: var(--danger);
+    border-color: #f1c1c5;
+}
+
+#mensaje.exito {
+    background: #e9f7ef;
+    color: #24683c;
+    border-color: #bce2ca;
+}
+
+/* Pie de página */
+
+footer {
+    padding: 18px 24px;
+    text-align: center;
+    background: var(--primary-dark);
+    color: #e1e9f4;
+    font-size: 0.85rem;
+}
+
+footer p {
+    margin: 0;
+}
+
+/* Pantallas pequeñas */
+
+@media (max-width: 650px) {
+    header {
+        padding: 20px;
+    }
+
+    header h1 {
+        font-size: 1.25rem;
+    }
+
+    nav {
+        flex-direction: column;
+    }
+
+    nav button {
+        width: 100%;
+    }
+
+    main {
+        padding: 22px 14px;
+    }
+
+    #login {
+        margin: 20px auto;
+        padding: 24px 20px;
+    }
+
+    #panel > section {
+        padding: 20px;
+    }
+
+    #numeroCuenta {
+        max-width: 100%;
+    }
+
+    .tarjeta {
+        padding: 16px;
+    }
+}
+  

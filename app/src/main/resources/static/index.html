@@ -1,0 +1,81 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Cuentas de Ahorro</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+</head>
+<body>
+    <header>
+        <h1>Sistema de Cuentas de Ahorro</h1>
+        <nav id="navegacion" hidden>
+            <button type="button" data-seccion="cuentas">
+                Mis cuentas
+            </button>
+            <button type="button" data-seccion="beneficiarios">
+                Beneficiarios
+            </button>
+            <button type="button" data-seccion="estados">
+                Estados de cuenta
+            </button>
+            <button type="button" id="cerrarSesion">
+                Cerrar sesión
+            </button>
+        </nav>
+    </header>
+
+    <main>
+        <p id="mensaje" role="status" aria-live="polite"></p>
+
+        <section id="login">
+            <h2>Iniciar sesión</h2>
+            <form id="formLogin">
+                <label for="usuario">Usuario</label>
+                <input id="usuario" name="usuario"
+                       autocomplete="username" required>
+
+                <label for="contrasena">Contraseña</label>
+                <input id="contrasena" name="contrasena"
+                       type="password"
+                       autocomplete="current-password" required>
+
+                <button type="submit">Ingresar</button>
+            </form>
+        </section>
+
+        <section id="panel" hidden>
+            <h2>Bienvenido</h2>
+            <p id="usuarioActual"></p>
+
+            <label for="numeroCuenta">Número de cuenta</label>
+            <input id="numeroCuenta"
+                   placeholder="Ingrese el número de cuenta">
+
+            <section id="seccionCuentas">
+                <h3>Mis cuentas</h3>
+                <p>Seleccione una cuenta para consultar su información.</p>
+                <div id="listaCuentas"></div>
+            </section>
+
+            <section id="seccionBeneficiarios" hidden>
+                <h3>Beneficiarios</h3>
+                <div id="listaBeneficiarios"></div>
+                <div id="formularioBeneficiario"></div>
+            </section>
+
+            <section id="seccionEstados" hidden>
+                <h3>Estados de cuenta</h3>
+                <div id="listaEstados"></div>
+            </section>
+        </section>
+    </main>
+
+    <footer>
+        <p>Sistema de Cuentas de Ahorro</p>
+    </footer>
+</body>
+</html>
+  
