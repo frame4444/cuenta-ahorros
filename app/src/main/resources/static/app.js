@@ -81,9 +81,11 @@ function formatoDinero(valor) {
 
 function cuentaSeleccionada() {
     const cuenta = numeroCuenta.value.trim();
+
     if (!cuenta) {
-        throw new Error("Primero ingresa un número de cuenta.");
+        throw new Error("Primero selecciona una cuenta en Mis cuentas.");
     }
+
     return encodeURIComponent(cuenta);
 }
 
@@ -95,6 +97,8 @@ function mostrarLogin() {
     limpiar(listaBeneficiarios);
     limpiar(listaEstados);
     limpiar(formularioBeneficiario);
+    numeroCuenta.value = "";
+    limpiar(listaCuentas);
 }
 
 function mostrarPanel(usuario) {
@@ -107,6 +111,45 @@ function mostrarPanel(usuario) {
         `Sesión iniciada como ${usuario.username}`;
 
     cambiarSeccion("cuentas");
+}
+
+
+
+async function cargarCuentas() {
+    limpiar(listaCuentas);
+    listaCuentas.append(crearElemento("p", "Cargando cuentas..."));
+
+    try {
+        const cuentas = await api("/api/cuentas");
+
+        limpiar(listaCuentas);
+
+        if (!cuentas.length) {
+            listaCuentas.append(
+                crearElemento("p", "No tienes cuentas autorizadas.")
+            );
+            return;
+        }
+
+        for (const cuenta of cuentas) {
+            const div = tarjeta(`Cuenta ${cuenta.numeroCuenta}`);
+
+            detalle(div, "Saldo", `₡${formatoDinero(cuenta.saldo)}`);
+            detalle(div, "Fecha de creación", cuenta.fechaCreacion);
+
+            div.append(
+                botonAccion("Seleccionar cuenta", () => {
+                    numeroCuenta.value = cuenta.numeroCuenta;
+                    cambiarSeccion("beneficiarios");
+                })
+            );
+
+            listaCuentas.append(div);
+        }
+    } catch (error) {
+        limpiar(listaCuentas);
+        mostrarMensaje(error.message, "error");
+    }
 }
 
 function cambiarSeccion(seccion) {
@@ -128,16 +171,7 @@ function cambiarSeccion(seccion) {
 
     mostrarMensaje("");
 
-    if (seccion === "cuentas") {
-        limpiar(listaCuentas);
-        listaCuentas.append(
-            crearElemento(
-                "p",
-                "Ingresa el número de una cuenta autorizada para consultar sus datos."
-            )
-        );
-    }
-
+    if (seccion === "cuentas") cargarCuentas();
     if (seccion === "beneficiarios") cargarBeneficiarios();
     if (seccion === "estados") cargarEstados();
 }

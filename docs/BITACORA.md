@@ -105,3 +105,48 @@ El segundo es el inicio se sesión, y el tercero muestra el estado de cuenta. Es
 
 También adjunto el cookies.txt en el que el curl descarga la sesión, pues siempre sale en los comandos. Solameente muestra el id de sesión.
 ![[media/cookies.png]]
+
+# 11/10/26
+## José Julián - 1:30 PM - 3:30 PM y 8:10 PM - 11:30 PM
+### Implementación y pruebas del frontend
+
+Se crearon los archivos index.html, styles.css y app.js para la interfaz web del sistema de cuentas de ahorro. Se implementaron las pantallas de inicio de sesión, navegación, consulta de beneficiarios y estados de cuenta, además de los formularios para agregar, modificar y eliminar beneficiarios.
+Se realizaron ajustes en el manejo de errores de inicio de sesión y en la alerta que aparece cuando la suma de los porcentajes de los beneficiarios no es igual a 100.
+
+### Pruebas realizadas
+Se comprobó el funcionamiento de la consulta de beneficiarios para la cuenta 11000001 y se verificó que el sistema rechaza la inserción de un cuarto beneficiario.
+Se probó la modificación del nombre, parentesco y porcentaje de un beneficiario. Posteriormente, se verificó en SQL Server que la operación quedó registrada en Bitacora, incluyendo los datos anteriores y posteriores en formato JSON.
+
+También se probó la eliminación de un beneficiario. Se confirmó que el registro permanece en la tabla, que FlagActivo cambia a 0, que se almacena la fecha de desactivación y que la operación queda registrada en la bitácora SQL. Después se restauró el beneficiario utilizado en la prueba.
+
+### Pendiente
+Completar las pruebas del frontend y realizar la documentación del proyecto.
+
+# 12/10/26
+## José Julián - 3:00 PM - 6:20 PM
+### Implementación de la lista de cuentas autorizadas
+Se implementó la función para mostrar las cuentas autorizadas de cada usuario, ya que anteriormente era necesario escribir manualmente el número de cuenta.
+
+Se creó `sp_ListarCuentasUsuario` y se agregaron `CuentaRepository.java` y `CuentaController.java` para conectar la consulta con el backend.
+
+También se modificó `app.js` para mostrar las cuentas en **Mis cuentas**, incluyendo su saldo y fecha de creación. Se agregó un botón para seleccionar cada cuenta y se eliminó el campo donde se escribía el número manualmente.
+
+### Problemas encontrados
+Fue necesario corregir un parámetro del procedimiento almacenado para que funcionara con el backend.
+
+También hubo un problema porque los cambios de `app.js` no aparecían en la página. Se solucionó corrigiendo el archivo y reiniciando Spring Boot.
+
+### Pruebas realizadas
+Se comprobó que el usuario `jaguero` pudiera ver sus dos cuentas autorizadas y consultar sus beneficiarios y estados de cuenta.
+
+Después se realizaron pruebas con la cuenta `11000017`:
+
+- Se agregó un beneficiario nuevo después de ajustar temporalmente los porcentajes.
+- Se comprobó que apareciera una advertencia cuando los porcentajes sumaban 90 %.
+- Se eliminó el beneficiario de prueba y se verificó en SQL Server que quedara desactivado, sin borrarse de la tabla.
+- Se revisó la `Bitacora` para comprobar los registros de inclusión, modificación, eliminación, inicio y cierre de sesión y consultas de estados de cuenta.
+
+Al terminar, se restauró el porcentaje del beneficiario original.
+
+### Pendiente
+Completar la documentación del proyecto.
