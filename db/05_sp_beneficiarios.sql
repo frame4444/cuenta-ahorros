@@ -4,6 +4,7 @@
 --   0 OK | 50003 sin acceso a la cuenta | 50004 maximo 3 beneficiarios
 --   50005 dato invalido (detalle en @outMensaje) | 50006 ya es beneficiario
 --   50007 cuenta o beneficiario no existe | 50008 error de base de datos
+-- La suma de porcentajes activos de una cuenta no puede superar 100.
 -- Cada cambio queda en Bitacora con JSON antes/despues (3 agregar,
 -- 4 actualizar, 5 eliminar, 6 actualizar solo el porcentaje).
 -- =====================================================================
@@ -121,7 +122,8 @@ BEGIN
     SET @outMensaje = NULL;
 
     DECLARE @idCuenta INT, @idPersona INT, @idBeneficiario INT;
-    DECLARE @cantActivos INT, @jsonDespues NVARCHAR(MAX);
+    DECLARE @cantActivos INT, @sumaActual INT;
+    DECLARE @jsonDespues NVARCHAR(MAX);
 
     BEGIN TRY
         EXEC dbo.sp_VerificarAccesoCuenta
@@ -184,7 +186,8 @@ BEGIN
         BEGIN TRANSACTION;
 
         -- UPDLOCK/HOLDLOCK: dos altas simultaneas no pasan del maximo
-        SELECT @cantActivos = COUNT(*)
+        SELECT @cantActivos = COUNT(*),
+               @sumaActual  = COALESCE(SUM(B.Porcentaje), 0)
         FROM dbo.Beneficiario B WITH (UPDLOCK, HOLDLOCK)
         WHERE B.IdCuenta = @idCuenta AND B.FlagActivo = 1;
 
@@ -193,6 +196,15 @@ BEGIN
             ROLLBACK TRANSACTION;
             SET @outResultCode = 50004;
             SET @outMensaje = N'La cuenta ya tiene 3 beneficiarios.';
+            RETURN;
+        END;
+
+        IF @sumaActual + @inPorcentaje > 100
+        BEGIN
+            ROLLBACK TRANSACTION;
+            SET @outResultCode = 50005;
+            SET @outMensaje = CONCAT(N'La suma no puede superar 100. ',
+                                     N'Disponible: ', 100 - @sumaActual);
             RETURN;
         END;
 
@@ -258,6 +270,7 @@ BEGIN
     SET @outResultCode = 0;
     SET @outMensaje = NULL;
 
+    DECLARE @idCuenta INT, @sumaOtros INT;
     DECLARE @idPersona INT, @nombreActual VARCHAR(64);
     DECLARE @idParentezcoActual INT, @porcentajeActual INT;
     DECLARE @flagCambioNombre BIT, @flagCambioParentezco BIT;
@@ -294,7 +307,8 @@ BEGIN
             RETURN;
         END;
 
-        SELECT @idPersona         = B.IdPersona,
+        SELECT @idCuenta          = B.IdCuenta,
+               @idPersona         = B.IdPersona,
                @nombreActual      = P.Nombre,
                @idParentezcoActual = B.IdParentezco,
                @porcentajeActual  = B.Porcentaje
@@ -335,6 +349,24 @@ BEGIN
         SET @jsonAntes = dbo.fn_JsonBeneficiario(@inIdBeneficiario);
 
         BEGIN TRANSACTION;
+
+        IF @flagCambioPorcentaje = 1
+        BEGIN
+            SELECT @sumaOtros = COALESCE(SUM(B.Porcentaje), 0)
+            FROM dbo.Beneficiario B WITH (UPDLOCK, HOLDLOCK)
+            WHERE B.IdCuenta = @idCuenta
+              AND B.FlagActivo = 1
+              AND B.Id <> @inIdBeneficiario;
+
+            IF @sumaOtros + @inPorcentaje > 100
+            BEGIN
+                ROLLBACK TRANSACTION;
+                SET @outResultCode = 50005;
+                SET @outMensaje = CONCAT(N'La suma no puede superar 100. ',
+                                         N'Maximo para este: ', 100 - @sumaOtros);
+                RETURN;
+            END;
+        END;
 
         IF @flagCambioNombre = 1
             UPDATE dbo.Persona

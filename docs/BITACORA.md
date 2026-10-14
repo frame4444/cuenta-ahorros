@@ -150,3 +150,8 @@ Al terminar, se restauró el porcentaje del beneficiario original.
 
 ### Pendiente
 Completar la documentación del proyecto.
+# 13/10/26
+## Marco - 8:00-9:00
+Probando la tarea mediante tailscale, entre mis dos máquinas, me di cuenta que no habíamos implementado la verificación para que el porcentaje asignado a los beneficiarios sumara un 100%... Antes se podía pasar de ese valor. 
+
+Dentro del archivo de SP's de beneficiarios, en la sp de insertar beneficiario, se agregó la validación y el retorno de mensajes de error.
