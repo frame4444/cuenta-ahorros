@@ -3,7 +3,8 @@ GO
 SET QUOTED_IDENTIFIER ON;
 GO
 
--- Aplica nodos por Id, con una transacción por nodo para permitir reanudar.
+-- Aplica nodos por Id. Si existe una transacción externa, el llamador debe
+-- revertirla ante cualquier código distinto de cero. Sin ella, confirma por nodo.
 -- El llamador ejecuta los cierres y marca SimFecha como terminada después.
 CREATE OR ALTER PROCEDURE dbo.sp_ProcesarOperacionesDia
     @inFecha DATE,
@@ -15,15 +16,16 @@ BEGIN
     SET @outResultCode = 0;
     SET @outMensaje = NULL;
 
-    IF @@TRANCOUNT <> 0 OR (@@OPTIONS & 2) = 2
+    IF (@@OPTIONS & 2) = 2 OR XACT_STATE() = -1
     BEGIN
         SET @outResultCode = 50001;
-        SET @outMensaje = N'El proceso requiere transacciones explícitas por nodo y ninguna transacción externa.';
+        SET @outMensaje = N'El proceso requiere transacciones explícitas y una sesión sin transacción invalidada.';
         RETURN;
     END;
 
     SET XACT_ABORT ON;
 
+    DECLARE @transaccionPropia BIT = CASE WHEN @@TRANCOUNT = 0 THEN 1 ELSE 0 END;
     DECLARE @id INT, @tipo VARCHAR(20), @nodo XML,
             @terminada BIT, @procesados INT = 0,
             @saldo DECIMAL(18,2), @salt UNIQUEIDENTIFIER,
@@ -36,7 +38,7 @@ BEGIN
         BEGIN
             SET @id = NULL;
             SET @terminada = NULL;
-            BEGIN TRANSACTION;
+            IF @transaccionPropia = 1 BEGIN TRANSACTION;
 
             -- Serializa la selección y aplicación de nodos de la misma fecha.
             SELECT @terminada = FlagTerminada
@@ -54,7 +56,7 @@ BEGIN
 
             IF @id IS NULL
             BEGIN
-                COMMIT TRANSACTION;
+                IF @transaccionPropia = 1 COMMIT TRANSACTION;
                 BREAK;
             END;
 
@@ -122,26 +124,18 @@ BEGIN
                        @monto = @nodo.value('(/Movimientos/@Monto)[1]', 'DECIMAL(18,2)'),
                        @descripcion = @nodo.value('(/Movimientos/@Descripcion)[1]', 'NVARCHAR(200)');
 
-                SET @codigoMovimiento = NULL;
-                BEGIN TRY
-                    EXEC dbo.sp_AplicarMovimiento
-                        @inFecha = @inFecha,
-                        @inNumeroCuenta = @numeroCuenta,
-                        @inNombreTipoMovimiento = @tipoMovimiento,
-                        @inMonto = @monto,
-                        @inDescripcion = @descripcion,
-                        @outResultCode = @codigoMovimiento OUTPUT,
-                        @outMensaje = @mensajeMovimiento OUTPUT;
-                END TRY
-                BEGIN CATCH
-                    -- El rollback interno de la SP 12 puede generar el error 266.
-                    IF ERROR_NUMBER() <> 266 OR @codigoMovimiento IS NULL OR @codigoMovimiento = 0
-                        THROW;
-                END CATCH;
+                EXEC dbo.sp_AplicarMovimiento
+                    @inFecha = @inFecha,
+                    @inNumeroCuenta = @numeroCuenta,
+                    @inNombreTipoMovimiento = @tipoMovimiento,
+                    @inMonto = @monto,
+                    @inDescripcion = @descripcion,
+                    @outResultCode = @codigoMovimiento OUTPUT,
+                    @outMensaje = @mensajeMovimiento OUTPUT;
 
                 IF @codigoMovimiento <> 0
                 BEGIN
-                    IF XACT_STATE() <> 0 ROLLBACK TRANSACTION;
+                    IF @transaccionPropia = 1 AND XACT_STATE() <> 0 ROLLBACK TRANSACTION;
                     SET @outResultCode = @codigoMovimiento;
                     SET @outMensaje = LEFT(CONCAT(N'Nodo ', @id, N' (', @tipo, N'): ', @mensajeMovimiento), 200);
                     RETURN;
@@ -151,14 +145,14 @@ BEGIN
                 THROW 50001, N'Tipo de nodo no reconocido.', 1;
 
             UPDATE dbo.SimOperacion SET FlagProcesado = 1 WHERE Id = @id;
-            COMMIT TRANSACTION;
+            IF @transaccionPropia = 1 COMMIT TRANSACTION;
             SET @procesados += 1;
         END;
 
         SET @outMensaje = CONCAT(N'Nodos procesados en esta llamada: ', @procesados, N'.');
     END TRY
     BEGIN CATCH
-        IF XACT_STATE() <> 0 ROLLBACK TRANSACTION;
+        IF @transaccionPropia = 1 AND XACT_STATE() <> 0 ROLLBACK TRANSACTION;
         SET @outResultCode = ERROR_NUMBER();
         SET @outMensaje = LEFT(CONCAT(
             CASE WHEN @id IS NOT NULL THEN CONCAT(N'Nodo ', @id, N' (', @tipo, N'): ') ELSE N'' END,

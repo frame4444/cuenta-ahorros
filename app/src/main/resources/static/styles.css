@@ -242,6 +242,33 @@ button:disabled {
     justify-self: start;
 }
 
+.tarjeta summary {
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.movimientos {
+    overflow-x: auto;
+    margin-top: 12px;
+}
+
+.movimientos table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.movimientos th,
+.movimientos td {
+    padding: 8px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+}
+
+.movimientos :is(th, td):is(:nth-child(2), :nth-child(4)) {
+    text-align: right;
+    white-space: nowrap;
+}
+
 /* Mensajes */
 
 #mensaje:empty {

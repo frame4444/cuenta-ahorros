@@ -447,14 +447,69 @@ function mostrarFormularioBeneficiario(beneficiario = null) {
 
     formularioBeneficiario.append(form);
 }
-async function cargarEstados() {
-    try {
-        const cuenta = cuentaSeleccionada();
-        const estados = await api(
-            `/api/cuentas/${cuenta}/estados-cuenta`
-        );
+function detalleMovimientos(rutaEstado) {
+    const panelMovimientos = document.createElement("details");
+    const contenido = document.createElement("div");
+    contenido.className = "movimientos";
+    contenido.setAttribute("aria-live", "polite");
+    panelMovimientos.append(crearElemento("summary", "Movimientos"), contenido);
 
-        limpiar(listaEstados);
+    let cargado = false;
+    let cargando = false;
+    panelMovimientos.addEventListener("toggle", async () => {
+        if (!panelMovimientos.open || cargado || cargando) return;
+
+        cargando = true;
+        contenido.replaceChildren(crearElemento("p", "Cargando movimientos…"));
+        try {
+            const movimientos = await api(`${rutaEstado}/movimientos`);
+            if (!movimientos.length) {
+                contenido.replaceChildren(crearElemento("p", "Este estado no tiene movimientos."));
+                cargado = true;
+                return;
+            }
+
+            const tabla = document.createElement("table");
+            tabla.setAttribute("aria-label", "Detalle de movimientos");
+            const encabezado = tabla.createTHead().insertRow();
+            for (const titulo of ["Fecha", "Monto", "Descripción", "Nuevo saldo"]) {
+                const columna = crearElemento("th", titulo);
+                columna.scope = "col";
+                encabezado.append(columna);
+            }
+
+            const cuerpo = tabla.createTBody();
+            for (const movimiento of movimientos) {
+                const fila = cuerpo.insertRow();
+                fila.append(
+                    crearElemento("td", movimiento.fecha),
+                    crearElemento("td", `${movimiento.simbolo}${formatoDinero(movimiento.monto)}`),
+                    crearElemento("td", movimiento.descripcion),
+                    crearElemento("td", `${movimiento.simbolo}${formatoDinero(movimiento.nuevoSaldo)}`)
+                );
+            }
+            contenido.replaceChildren(tabla);
+            cargado = true;
+        } catch (error) {
+            contenido.replaceChildren(
+                crearElemento("p", `No se pudieron cargar los movimientos. ${error.message}`)
+            );
+        } finally {
+            cargando = false;
+        }
+    });
+
+    return panelMovimientos;
+}
+
+async function cargarEstados() {
+    limpiar(listaEstados);
+    let cuenta;
+    try {
+        cuenta = cuentaSeleccionada();
+        const ruta = `/api/cuentas/${cuenta}/estados-cuenta`;
+        const estados = await api(ruta);
+        if (encodeURIComponent(numeroCuenta.value.trim()) !== cuenta) return;
 
         if (!estados.length) {
             listaEstados.append(
@@ -472,12 +527,14 @@ async function cargarEstados() {
             detalle(div, "Saldo final", formatoDinero(estado.saldoFinal));
             detalle(div, "Saldo mínimo", formatoDinero(estado.saldoMinimo));
             detalle(div, "Operaciones ATM", estado.cantOpAtm);
-            detalle(div, "Operaciones cajero humano", estado.cantOpHumano);
+            detalle(div, "Operaciones cajero", estado.cantOpHumano);
             detalle(div, "Operaciones SINPE", estado.cantOpSinpe);
 
+            div.append(detalleMovimientos(`${ruta}/${estado.id}`));
             listaEstados.append(div);
         }
     } catch (error) {
+        if (cuenta && encodeURIComponent(numeroCuenta.value.trim()) !== cuenta) return;
         limpiar(listaEstados);
         mostrarMensaje(error.message, "error");
     }

@@ -9,4 +9,5 @@ public record MovimientoDto(
         LocalDate fecha,
         BigDecimal monto,
         String descripcion,
-        BigDecimal nuevoSaldo) {}
+        BigDecimal nuevoSaldo,
+        String simbolo) {}
