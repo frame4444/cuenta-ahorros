@@ -18,5 +18,3 @@ for f in $(find [0-9][0-9]_*.sql | sort); do
   docker exec -i "$CONT" sh -c \
     '/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -C -I -b' < "$f"
 done
-echo "Done."
-

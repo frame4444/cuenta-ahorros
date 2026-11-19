@@ -161,9 +161,12 @@ BEGIN
                C.n.value('local-name(.)', 'VARCHAR(20)'),
                C.n.query('.')
         FROM @x.nodes('/Operaciones/FechaOperacion') AS F(n)
-        CROSS APPLY F.n.nodes('*') AS C(n)
-        ORDER BY F.n.value('@Fecha', 'DATE'),
-                 C.n.value('count(preceding-sibling::*)', 'INT');
+        CROSS APPLY GENERATE_SERIES(1, F.n.value('count(*)', 'INT'), 1) AS P
+        CROSS APPLY F.n.nodes('*[position() = sql:column("P.value")]') AS C(n)
+        ORDER BY F.n.value('@Fecha', 'DATE'), P.value;
+        -- FROM @x.nodes('/Operaciones/FechaOperacion') AS F(n)
+        -- CROSS APPLY F.n.nodes('*') AS C(n)
+        -- ORDER BY F.n.value('@Fecha', 'DATE'),
         SET @nNodos = @@ROWCOUNT;
 
         COMMIT TRANSACTION;
