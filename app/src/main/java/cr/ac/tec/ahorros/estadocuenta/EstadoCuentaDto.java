@@ -10,8 +10,7 @@ public record EstadoCuentaDto(
         BigDecimal saldoInicial,
         BigDecimal saldoFinal,
         BigDecimal saldoMinimo,
-        BigDecimal interesesAcumulados,
-        int cantRetiros,
-        int cantDepositos,
-        int cantSinpeEntrantes,
-        int cantSinpeSalientes) {}
+        int cantOpAtm,
+        int cantOpHumano,
+        int cantOpSinpe,
+        boolean cerrado) {}

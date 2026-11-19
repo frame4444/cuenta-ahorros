@@ -42,10 +42,9 @@ public class EstadoCuentaRepository {
                 rs.getBigDecimal("SaldoInicial"),
                 rs.getBigDecimal("SaldoFinal"),
                 rs.getBigDecimal("SaldoMinimo"),
-                rs.getBigDecimal("InteresesAcumulados"),
-                rs.getInt("CantRetiros"),
-                rs.getInt("CantDepositos"),
-                rs.getInt("CantSinpeEntrantes"),
-                rs.getInt("CantSinpeSalientes"));
+                rs.getInt("CantOpATM"),
+                rs.getInt("CantOpHumano"),
+                rs.getInt("CantOpSinpe"),
+                rs.getBoolean("FlagCerrado"));
     }
 }

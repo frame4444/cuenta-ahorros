@@ -471,15 +471,9 @@ async function cargarEstados() {
             detalle(div, "Saldo inicial", formatoDinero(estado.saldoInicial));
             detalle(div, "Saldo final", formatoDinero(estado.saldoFinal));
             detalle(div, "Saldo mínimo", formatoDinero(estado.saldoMinimo));
-            detalle(
-                div,
-                "Intereses acumulados",
-                formatoDinero(estado.interesesAcumulados)
-            );
-            detalle(div, "Retiros", estado.cantRetiros);
-            detalle(div, "Depósitos", estado.cantDepositos);
-            detalle(div, "SINPE entrantes", estado.cantSinpeEntrantes);
-            detalle(div, "SINPE salientes", estado.cantSinpeSalientes);
+            detalle(div, "Operaciones ATM", estado.cantOpAtm);
+            detalle(div, "Operaciones cajero humano", estado.cantOpHumano);
+            detalle(div, "Operaciones SINPE", estado.cantOpSinpe);
 
             listaEstados.append(div);
         }
