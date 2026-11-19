@@ -1,8 +1,7 @@
 -- =====================================================================
 -- TP2 - Esquema base: catálogos + tablas necesarias para autenticación
 -- Ejecutar contra AhorrosDB.
--- NOTA: TipoCuentaAhorro sigue el texto del enunciado; ajustar cuando
--- se tenga el catalogos.xml real.
+-- TP3: TipoCuentaAhorro ya con tasa anual y limite/comision Sinpe.
 -- =====================================================================
 USE AhorrosDB;
 GO
@@ -34,9 +33,9 @@ CREATE TABLE dbo.TipoCuentaAhorro (
     NumRetirosAutomatico         INT           NOT NULL,
     ComisionHumano               DECIMAL(18,2) NOT NULL,
     ComisionAutomatico           DECIMAL(18,2) NOT NULL,
-    MontoMaxSinpeSinComision     DECIMAL(18,2) NULL,  -- no viene en el XML de ejemplo
-    ComisionSinpe                DECIMAL(18,2) NULL,  -- no viene en el XML de ejemplo
-    TasaInteresMensual           DECIMAL(9,4)  NOT NULL
+    MontoMaxSinpeDiario          DECIMAL(18,2) NULL,  -- envios Sinpe por dia sin comision
+    ComisionSinpe                DECIMAL(18,2) NULL,  -- por cada envio que supere el limite diario
+    TasaInteresAnual             DECIMAL(9,4)  NOT NULL   -- en %, se divide entre 12 al cierre
 );
 
 CREATE TABLE dbo.TipoOperacionBitacora (

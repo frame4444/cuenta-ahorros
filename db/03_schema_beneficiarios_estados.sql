@@ -1,5 +1,5 @@
 -- =====================================================================
--- TP2 - Tablas que faltaban: Parentezco, Beneficiario, EstadoCuenta
+-- Parentezco y Beneficiario (EstadoCuenta vive en 09_schema_tp3.sql)
 -- Correr DESPUES de 01_schema_auth.sql. Re-ejecutable: cada objeto se
 -- crea solo si todavía no existe.
 -- =====================================================================
@@ -37,26 +37,4 @@ CREATE UNIQUE INDEX UX_Beneficiario_Activo
     ON dbo.Beneficiario (IdCuenta, IdPersona) WHERE FlagActivo = 1;
 GO
 
-IF OBJECT_ID('dbo.EstadoCuenta', 'U') IS NULL
-CREATE TABLE dbo.EstadoCuenta (
-    Id                  INT IDENTITY(1,1) PRIMARY KEY,
-    IdCuenta            INT           NOT NULL REFERENCES dbo.Cuenta(Id),
-    FechaInicio         DATE          NOT NULL,
-    FechaFin            DATE          NOT NULL,
-    SaldoInicial        DECIMAL(18,2) NOT NULL,
-    SaldoMinimo         DECIMAL(18,2) NOT NULL,
-    SaldoFinal          DECIMAL(18,2) NOT NULL,
-    InteresesAcumulados DECIMAL(18,2) NOT NULL,
-    CantRetiros         INT           NOT NULL,
-    CantDepositos       INT           NOT NULL,
-    CantSinpeEntrantes  INT           NOT NULL,
-    CantSinpeSalientes  INT           NOT NULL
-);
-GO
-
--- Para "los últimos 8 estados de una cuenta, el más reciente primero"
-IF NOT EXISTS (SELECT 1 FROM sys.indexes
-               WHERE name = 'IX_EstadoCuenta_Cuenta_Fin'
-                 AND object_id = OBJECT_ID('dbo.EstadoCuenta'))
-CREATE INDEX IX_EstadoCuenta_Cuenta_Fin ON dbo.EstadoCuenta (IdCuenta, FechaFin DESC);
-GO
+-- EstadoCuenta (TP3) se crea en 09_schema_tp3.sql
