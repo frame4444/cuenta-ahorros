@@ -47,6 +47,7 @@ public class MovimientoRepository {
                 rs.getDate("Fecha").toLocalDate(),
                 rs.getBigDecimal("Monto"),
                 rs.getString("Descripcion"),
-                rs.getBigDecimal("NuevoSaldo"));
+                rs.getBigDecimal("NuevoSaldo"),
+                rs.getString("Simbolo"));
     }
 }
