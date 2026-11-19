@@ -13,7 +13,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /**
- * Carga catálogos y datos de prueba desde los XML al arrancar, SOLO si
+ * Carga catálogos y el XML de operaciones (hacia SimOperacion) al arrancar, SOLO si
  * app.carga.habilitada=true. La lógica de inserción vive en los SPs.
  */
 @Component
@@ -24,20 +24,20 @@ public class CargaRunner implements ApplicationRunner {
 
     private final CargaRepository repo;
     private final String rutaCatalogos;
-    private final String rutaDatos;
+    private final String rutaOperaciones;
 
     public CargaRunner(CargaRepository repo,
                        @Value("${app.carga.catalogos}") String rutaCatalogos,
-                       @Value("${app.carga.datos}") String rutaDatos) {
+                       @Value("${app.carga.operaciones}") String rutaOperaciones) {
         this.repo = repo;
         this.rutaCatalogos = rutaCatalogos;
-        this.rutaDatos = rutaDatos;
+        this.rutaOperaciones = rutaOperaciones;
     }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
         log.info("Catálogos: {}", repo.cargarCatalogos(leerXml(rutaCatalogos)));
-        log.info("Datos: {}", repo.cargarDatos(leerXml(rutaDatos)));
+        log.info("Simulación: {}", repo.cargarSimulacion(leerXml(rutaOperaciones)));
     }
 
     /** Quita BOM y la declaración <?xml ... ?> (SQL Server no la acepta en NVARCHAR con encoding="UTF-8"). */

@@ -11,21 +11,21 @@ import org.springframework.stereotype.Repository;
 public class CargaRepository {
 
     private final SimpleJdbcCall catalogosCall;
-    private final SimpleJdbcCall datosCall;
+    private final SimpleJdbcCall simulacionCall;
 
     public CargaRepository(JdbcTemplate jdbc) {
         this.catalogosCall = new SimpleJdbcCall(jdbc)
                 .withSchemaName("dbo").withProcedureName("sp_CargarCatalogos");
-        this.datosCall = new SimpleJdbcCall(jdbc)
-                .withSchemaName("dbo").withProcedureName("sp_CargarDatos");
+        this.simulacionCall = new SimpleJdbcCall(jdbc)
+                .withSchemaName("dbo").withProcedureName("sp_CargarSimulacion");
     }
 
     public String cargarCatalogos(String xml) {
         return ejecutar(catalogosCall, xml);
     }
 
-    public String cargarDatos(String xml) {
-        return ejecutar(datosCall, xml);
+    public String cargarSimulacion(String xml) {
+        return ejecutar(simulacionCall, xml);
     }
 
     private String ejecutar(SimpleJdbcCall call, String xml) {
