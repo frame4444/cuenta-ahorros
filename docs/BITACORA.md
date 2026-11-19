@@ -181,4 +181,7 @@ Este ha sido de los días más problemáticos del semestre. El código no estaba
 * En la sp 10 se usó `preceding-sibling` en XQuery, cosa que sqlserver no admite.
 * Con la nueva versión de la tarea, no se estaban cargando los datos de usuario de no_catalogos, no indispensables, pero facilitaban pruebas... Esta fue la parte más difícil y donde más perdí tiempo. al final uno de los errores que más me costó encontrar fue muy simple:![[media/error carga usuarios.png]]
 	en la línea resaltada, puse app.carga.operaciones, en vez de .usuarios.
-	
+
+# 18/11/26
+
+## Marco 2:00 pm 12:30 am
