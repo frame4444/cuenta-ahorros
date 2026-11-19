@@ -179,9 +179,18 @@ Este ha sido de los días más problemáticos del semestre. El código no estaba
 * Incompatibilidad entre `01_schema_auth.sql`  y la `04_sp_carga.sql`
 	 Se cambió la tasa de interés mensual a anual, no se corrigió en 04
 * En la sp 10 se usó `preceding-sibling` en XQuery, cosa que sqlserver no admite.
-* Con la nueva versión de la tarea, no se estaban cargando los datos de usuario de no_catalogos, no indispensables, pero facilitaban pruebas... Esta fue la parte más difícil y donde más perdí tiempo. al final uno de los errores que más me costó encontrar fue muy simple:![[media/error carga usuarios.png]]
+* Con la nueva versión de la tarea, no se estaban cargando los datos de usuario de no_catalogos, no indispensables, pero quería que estuvieran... Esta fue la parte más difícil y donde más perdí tiempo. al final uno de los errores que más me costó encontrar fue muy simple:![[media/error carga usuarios.png]]
 	en la línea resaltada, puse app.carga.operaciones, en vez de .usuarios.
-
+	Al final no sirvió de nada porque los datos estaban desactualizados, simplemente era cosa de continuar con la parte de procesar las operaciones y flaggear al resto de usuarios de los nuevos xml como activos
 # 18/11/26
 
 ## Marco 2:00 pm 12:30 am
+SP 14 lista, procesa las operaciones del día
+![[media/login_tp3.png]]Primero se muestra el login con los datos del nuevo xml además del listado de estados de cuenta
+
+![[media/0procesos.png]]
+0 cuentas procesadas
+![[media/amora_procesada.png]]amora procesada manualmente
+
+![[media/curl_movimientos.png]]
+curl de los movimientos de amora
