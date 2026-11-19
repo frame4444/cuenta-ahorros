@@ -1,6 +1,6 @@
 -- =====================================================================
--- TP2 - Consulta de estados de cuenta: los ultimos 8, el mas reciente
--- primero (fecha de emision = fecha en que cierra el estado, FechaFin).
+-- TP3 - Consulta de estados de cuenta de una cuenta, del mas reciente al
+-- mas antiguo (por FechaFin). Correr DESPUES de 09_schema_tp3.sql.
 -- Cada consulta queda en Bitacora (tipo 7).
 -- Codigos (@outResultCode): 0 OK | 50003 sin acceso | 50007 cuenta no
 -- existe | 50008 error de base de datos.
@@ -49,11 +49,9 @@ BEGIN
         INSERT dbo.Bitacora (IdUsuario, IdTipoOperacion)
         VALUES (@inIdUsuario, 7);
 
-        SELECT TOP (8)
-               E.Id, E.FechaInicio, E.FechaFin, E.SaldoInicial,
-               E.SaldoFinal, E.SaldoMinimo, E.InteresesAcumulados,
-               E.CantRetiros, E.CantDepositos,
-               E.CantSinpeEntrantes, E.CantSinpeSalientes
+        SELECT E.Id, E.FechaInicio, E.FechaFin, E.SaldoInicial,
+               E.SaldoFinal, E.SaldoMinimo,
+               E.CantOpATM, E.CantOpHumano, E.CantOpSinpe, E.FlagCerrado
         FROM dbo.EstadoCuenta E
         WHERE E.IdCuenta = @idCuenta
         ORDER BY E.FechaFin DESC, E.Id DESC;
