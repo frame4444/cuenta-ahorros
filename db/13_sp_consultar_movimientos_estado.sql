@@ -67,8 +67,11 @@ BEGIN
         INSERT dbo.Bitacora (IdUsuario, IdTipoOperacion)
         VALUES (@inIdUsuario, 8);
 
-        SELECT M.Id, M.Fecha, M.Monto, M.Descripcion, M.NuevoSaldo
+        SELECT M.Id, M.Fecha, M.Monto, M.Descripcion, M.NuevoSaldo, TM.Simbolo
         FROM dbo.Movimiento AS M
+        INNER JOIN dbo.Cuenta AS C ON C.Id = M.IdCuenta
+        INNER JOIN dbo.TipoCuentaAhorro AS TC ON TC.Id = C.IdTipoCuentaAhorro
+        INNER JOIN dbo.TipoMoneda AS TM ON TM.Id = TC.IdTipoMoneda
         WHERE M.IdCuenta = @idCuenta
           AND M.IdEstadoCuenta = @inIdEstadoCuenta
         ORDER BY M.Fecha ASC, M.Id ASC;

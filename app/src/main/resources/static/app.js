@@ -481,9 +481,9 @@ function mostrarDetalleMovimientos(estado, movimientos) {
             const fila = document.createElement("tr");
             fila.append(
                 crearElemento("td", movimiento.fecha),
-                crearElemento("td", formatoDinero(movimiento.monto)),
+                crearElemento("td", `${movimiento.simbolo}${formatoDinero(movimiento.monto)}`),
                 crearElemento("td", movimiento.descripcion),
-                crearElemento("td", formatoDinero(movimiento.nuevoSaldo))
+                crearElemento("td", `${movimiento.simbolo}${formatoDinero(movimiento.nuevoSaldo)}`)
             );
             tbody.append(fila);
         }
@@ -498,13 +498,13 @@ function mostrarDetalleMovimientos(estado, movimientos) {
 }
 
 async function cargarEstados() {
+    limpiar(listaEstados);
+    let cuenta;
     try {
-        const cuenta = cuentaSeleccionada();
-        const estados = await api(
-            `/api/cuentas/${cuenta}/estados-cuenta`
-        );
-
-        limpiar(listaEstados);
+        cuenta = cuentaSeleccionada();
+        const ruta = `/api/cuentas/${cuenta}/estados-cuenta`;
+        const estados = await api(ruta);
+        if (encodeURIComponent(numeroCuenta.value.trim()) !== cuenta) return;
 
         if (!estados.length) {
             listaEstados.append(
@@ -522,7 +522,7 @@ async function cargarEstados() {
             detalle(div, "Saldo final", formatoDinero(estado.saldoFinal));
             detalle(div, "Saldo mínimo", formatoDinero(estado.saldoMinimo));
             detalle(div, "Operaciones ATM", estado.cantOpAtm);
-            detalle(div, "Operaciones cajero humano", estado.cantOpHumano);
+            detalle(div, "Operaciones cajero", estado.cantOpHumano);
             detalle(div, "Operaciones SINPE", estado.cantOpSinpe);
 
             div.append(
@@ -542,6 +542,7 @@ async function cargarEstados() {
             listaEstados.append(div);
         }
     } catch (error) {
+        if (cuenta && encodeURIComponent(numeroCuenta.value.trim()) !== cuenta) return;
         limpiar(listaEstados);
         mostrarMensaje(error.message, "error");
     }

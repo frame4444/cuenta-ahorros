@@ -47,8 +47,11 @@ BEGIN
             @idTipoComision INT, @comisionAccion VARCHAR(8),
             @saldoTrasComision DECIMAL(18,2);
 
+    -- Cuando el llamador abre la transacción, también decide su rollback.
+    DECLARE @transaccionPropia BIT = CASE WHEN @@TRANCOUNT = 0 THEN 1 ELSE 0 END;
+
     BEGIN TRY
-        BEGIN TRANSACTION;
+        IF @transaccionPropia = 1 BEGIN TRANSACTION;
 
         -- Bloquear primero la cuenta; serializa movimientos simultaneos sobre ella.
         SELECT @idCuenta = C.Id,
@@ -174,11 +177,8 @@ BEGIN
 
             UPDATE dbo.EstadoCuenta
             SET SaldoFinal = @saldoTrasComision,
-                SaldoMinimo = CASE
-                    WHEN SaldoMinimo IS NULL THEN @saldoTrasComision
-                    WHEN SaldoMinimo < @saldoTrasComision THEN SaldoMinimo
-                    ELSE @saldoTrasComision
-                END
+                SaldoMinimo = CASE WHEN SaldoMinimo < @saldoTrasComision THEN SaldoMinimo
+                                  ELSE @saldoTrasComision END
             WHERE Id = @idEstadoCuenta;
 
             INSERT INTO dbo.Movimiento
@@ -188,14 +188,14 @@ BEGIN
                  N'Comision por exceder limite diario de envio SINPE', @saldoTrasComision);
         END;
 
-        COMMIT TRANSACTION;
+        IF @transaccionPropia = 1 COMMIT TRANSACTION;
         SET @outResultCode = 0;
         SET @outMensaje = CASE WHEN @idTipoComision IS NOT NULL
             THEN N'Movimiento aplicado y comision SINPE registrada.'
             ELSE N'Movimiento aplicado correctamente.' END;
     END TRY
     BEGIN CATCH
-        IF XACT_STATE() <> 0
+        IF @transaccionPropia = 1 AND XACT_STATE() <> 0
             ROLLBACK TRANSACTION;
         SET @outResultCode = ERROR_NUMBER();
         SET @outMensaje = LEFT(ERROR_MESSAGE(), 400);
