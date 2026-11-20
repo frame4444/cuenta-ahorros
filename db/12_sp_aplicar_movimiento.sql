@@ -145,8 +145,8 @@ BEGIN
         UPDATE dbo.EstadoCuenta
         SET SaldoFinal = @nuevoSaldo,
             SaldoMinimo = CASE
-                WHEN COALESCE(SaldoMinimo, SaldoInicial) < @nuevoSaldo
-                    THEN COALESCE(SaldoMinimo, SaldoInicial)
+                WHEN SaldoMinimo IS NULL THEN @nuevoSaldo
+                WHEN SaldoMinimo < @nuevoSaldo THEN SaldoMinimo
                 ELSE @nuevoSaldo
             END,
             CantOpATM = CantOpATM + CASE WHEN @inNombreTipoMovimiento IN ('Deposito ATM', 'Retiro ATM') THEN 1 ELSE 0 END,
