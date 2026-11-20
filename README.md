@@ -1,5 +1,13 @@
 # TP3 – Cuenta de Ahorros
 
+## Reparto
+
+- **Persona A:** `sp_AplicarMovimiento`, `sp_ProcesarOperacionesDia`, portal de detalle de movimientos y README.
+- **Persona B:** `sp_AbrirEstadoCuenta`, `sp_CerrarEstadoCuenta`, `sp_Simulacion`, portal de estados de cuenta y verificación.
+- Ambos deben probar los SP del compañero antes de la corrida final.
+
+> En la entrega, reemplazar Persona A / Persona B por los nombres acordados.
+
 La aplicación usa SQL Server 2022, Docker Compose y Java 21. El Maven Wrapper está en `app/`.
 
 ## Crear la base de datos
@@ -47,45 +55,7 @@ printf '%s\n' \
 
 En una base recién cargada, la primera llamada aplica 15 nodos. Una segunda llamada procesa cero. Para abrir el portal, ejecutá `./mvnw spring-boot:run` desde `app/` y entrá en <http://localhost:8080>. Iniciá sesión con el usuario de prueba `amora` y la contraseña indicada en `OperacionesTarea3.xml`, seleccioná la cuenta `11000001`, abrí **Estados de cuenta** y desplegá **Movimientos**. El primer movimiento es el depósito de apertura por ₡250 000.
 
-La corrida de cuatro meses necesita el coordinador de simulación y los procedimientos de cierre mensual. La prueba de un día aplica las operaciones de esa fecha y deja pendiente el cierre.
-# TP3 – Cuentas de Ahorro
-
-## Reparto
-
-- **Persona A:** `sp_AplicarMovimiento`, `sp_ProcesarOperacionesDia`, portal de detalle de movimientos y README.
-- **Persona B:** `sp_AbrirEstadoCuenta`, `sp_CerrarEstadoCuenta`, `sp_Simulacion`, portal de estados de cuenta y verificación.
-- Ambos deben probar los SP del compañero antes de la corrida final.
-
-> En la entrega, reemplazar Persona A / Persona B por los nombres acordados.
-
-## Orden de scripts
-
-1. `01_schema_auth.sql`
-2. `02_sp_auth.sql`
-3. `03_schema_beneficiarios_estados.sql`
-5. `05_sp_beneficiarios.sql`
-6. `06_sp_catalogos.sql`
-7. `08_sp_cuentas.sql`
-8. `08_sp_carga_usuarios_base.sql`
-9. `09_schema_tp3.sql`
-10. `10_sp_carga_tp3.sql`
-11. `11_sp_estados_cuenta.sql`
-12. `12_sp_aplicar_movimiento.sql`
-13. `13_sp_consultar_movimientos_estado.sql`
-14. `14_sp_procesar_operaciones_dia.sql`
-15. `15_sp_cerrar_abrir_estados.sql`
-16. `16_sp_simulacion.sql`
-17. `17_verificacion_tp3.sql`
-
-Los nombres de los scripts de TP2 pueden variar respecto al proyecto base; lo importante es ejecutar primero el esquema y procedimientos de TP2 que crean las tablas referenciadas por TP3.
-
-## Carga de catálogos y XML
-
-El procedimiento `sp_CargarCatalogos` recibe `CatalogosTarea3.xml` y carga los catálogos de TP3. Luego `sp_CargarSimulacion` recibe `OperacionesTarea3.xml` y crea:
-
-- una fila por fecha en `SimFecha`;
-- una fila por nodo de operación en `SimOperacion`;
-- el `Id` de `SimOperacion` conserva el orden de documento.
+La prueba de un día aplica las operaciones de esa fecha y deja pendiente el cierre. Para la corrida completa de cuatro meses usá `sp_Simulacion` (ver abajo).
 
 La simulación se procesa fecha por fecha y se puede reanudar porque cada nodo tiene `FlagProcesado` y cada fecha `FlagTerminada`.
 

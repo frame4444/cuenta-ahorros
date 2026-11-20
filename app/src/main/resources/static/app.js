@@ -481,9 +481,9 @@ function mostrarDetalleMovimientos(estado, movimientos) {
             const fila = document.createElement("tr");
             fila.append(
                 crearElemento("td", movimiento.fecha),
-                crearElemento("td", formatoDinero(movimiento.monto)),
+                crearElemento("td", `${movimiento.simbolo}${formatoDinero(movimiento.monto)}`),
                 crearElemento("td", movimiento.descripcion),
-                crearElemento("td", formatoDinero(movimiento.nuevoSaldo))
+                crearElemento("td", `${movimiento.simbolo}${formatoDinero(movimiento.nuevoSaldo)}`)
             );
             tbody.append(fila);
         }

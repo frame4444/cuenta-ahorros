@@ -64,6 +64,9 @@ BEGIN
             RETURN;
         END;
 
+        INSERT dbo.Bitacora (IdUsuario, IdTipoOperacion)
+        VALUES (@inIdUsuario, 8);
+
         SELECT M.Id, M.Fecha, M.Monto, M.Descripcion, M.NuevoSaldo, TM.Simbolo
         FROM dbo.Movimiento AS M
         INNER JOIN dbo.Cuenta AS C ON C.Id = M.IdCuenta
