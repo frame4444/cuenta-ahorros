@@ -447,6 +447,56 @@ function mostrarFormularioBeneficiario(beneficiario = null) {
 
     formularioBeneficiario.append(form);
 }
+function mostrarDetalleMovimientos(estado, movimientos) {
+    limpiar(listaEstados);
+
+    const encabezado = tarjeta(
+        `Movimientos: ${estado.fechaInicio} al ${estado.fechaFin}`
+    );
+
+    detalle(encabezado, "Saldo inicial", formatoDinero(estado.saldoInicial));
+    detalle(encabezado, "Saldo final", formatoDinero(estado.saldoFinal));
+    detalle(encabezado, "Saldo mínimo", formatoDinero(estado.saldoMinimo));
+
+    if (!movimientos.length) {
+        encabezado.append(
+            crearElemento("p", "No hay movimientos en este estado de cuenta.")
+        );
+    } else {
+        const tabla = document.createElement("table");
+        const thead = document.createElement("thead");
+        const encabezados = [
+            "Fecha", "Monto", "Descripción", "Nuevo saldo"
+        ];
+
+        const filaEncabezado = document.createElement("tr");
+        for (const texto of encabezados) {
+            filaEncabezado.append(crearElemento("th", texto));
+        }
+        thead.append(filaEncabezado);
+        tabla.append(thead);
+
+        const tbody = document.createElement("tbody");
+        for (const movimiento of movimientos) {
+            const fila = document.createElement("tr");
+            fila.append(
+                crearElemento("td", movimiento.fecha),
+                crearElemento("td", formatoDinero(movimiento.monto)),
+                crearElemento("td", movimiento.descripcion),
+                crearElemento("td", formatoDinero(movimiento.nuevoSaldo))
+            );
+            tbody.append(fila);
+        }
+        tabla.append(tbody);
+        encabezado.append(tabla);
+    }
+
+    encabezado.append(
+        botonAccion("Volver a estados de cuenta", () => cargarEstados())
+    );
+    listaEstados.append(encabezado);
+}
+
 async function cargarEstados() {
     try {
         const cuenta = cuentaSeleccionada();
@@ -474,6 +524,20 @@ async function cargarEstados() {
             detalle(div, "Operaciones ATM", estado.cantOpAtm);
             detalle(div, "Operaciones cajero humano", estado.cantOpHumano);
             detalle(div, "Operaciones SINPE", estado.cantOpSinpe);
+
+            div.append(
+                botonAccion("Ver movimientos", async () => {
+                    try {
+                        const movimientos = await api(
+                            `/api/cuentas/${cuenta}/estados-cuenta/${estado.id}/movimientos`
+                        );
+
+                        mostrarDetalleMovimientos(estado, movimientos);
+                    } catch (error) {
+                        mostrarMensaje(error.message, "error");
+                    }
+                })
+            );
 
             listaEstados.append(div);
         }

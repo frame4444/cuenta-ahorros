@@ -228,6 +228,26 @@ button:disabled {
     border-color: #a9c7e8;
 }
 
+table {
+    width: 100%;
+    margin-top: 18px;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+}
+
+th,
+td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+}
+
+th {
+    color: var(--primary-dark);
+    background: #eef4fb;
+}
+
 #formularioBeneficiario form {
     display: grid;
     gap: 14px;
