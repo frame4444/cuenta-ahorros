@@ -14,24 +14,43 @@ BEGIN
     SET @outResultCode = 0;
     SET @outMensaje = NULL;
 
-    DECLARE @fecha DATE, @fechaAnterior DATE,
+    IF @@TRANCOUNT <> 0 OR (@@OPTIONS & 2) = 2
+    BEGIN
+        SET @outResultCode = 50001;
+        SET @outMensaje = N'La simulación requiere una sesión sin transacción externa.';
+        RETURN;
+    END;
+
+    DECLARE @fecha DATE, @bloqueo INT,
             @codigo INT, @mensaje NVARCHAR(400), @n INT = 0;
 
     BEGIN TRY
-        WHILE EXISTS (SELECT 1 FROM dbo.SimFecha WHERE FlagTerminada = 0)
+        IF NOT EXISTS (SELECT 1 FROM dbo.SimFecha)
+            THROW 50008, N'Cargue primero el XML de operaciones.', 1;
+
+        WHILE 1 = 1
         BEGIN
-            SELECT TOP (1) @fecha = Fecha
-            FROM dbo.SimFecha
-            WHERE FlagTerminada = 0
-            ORDER BY Fecha;
+            SET @fecha = NULL;
+            BEGIN TRANSACTION;
 
-            SELECT @fechaAnterior = MAX(Fecha)
-            FROM dbo.SimFecha
-            WHERE Fecha < @fecha;
+            -- Serializa la elección de la próxima fecha entre corridas concurrentes.
+            EXEC @bloqueo = sys.sp_getapplock
+                @Resource = N'AhorrosDB:sp_Simulacion',
+                @LockMode = 'Exclusive',
+                @LockOwner = 'Transaction',
+                @LockTimeout = 10000;
+            IF @bloqueo < 0
+                THROW 50008, N'No se pudo obtener el bloqueo de la simulación.', 1;
 
-            IF @fechaAnterior IS NOT NULL
-               AND EXISTS (SELECT 1 FROM dbo.SimFecha WHERE Fecha = @fechaAnterior AND FlagTerminada = 0)
-                THROW 50020, N'La fecha anterior aun no esta terminada.', 1;
+            SELECT @fecha = MIN(Fecha)
+            FROM dbo.SimFecha
+            WHERE FlagTerminada = 0;
+
+            IF @fecha IS NULL
+            BEGIN
+                COMMIT TRANSACTION;
+                BREAK;
+            END;
 
             SET @codigo = 0;
             EXEC dbo.sp_ProcesarOperacionesDia
@@ -56,14 +75,18 @@ BEGIN
             IF @@ROWCOUNT <> 1
                 THROW 50023, N'No se pudo marcar la fecha como terminada.', 1;
 
+            COMMIT TRANSACTION;
             SET @n += 1;
         END;
 
         SET @outMensaje = CONCAT(N'Simulacion completada. Fechas procesadas: ', @n, N'.');
     END TRY
     BEGIN CATCH
+        IF XACT_STATE() <> 0 ROLLBACK TRANSACTION;
         SET @outResultCode = ERROR_NUMBER();
-        SET @outMensaje = LEFT(ERROR_MESSAGE(), 200);
+        SET @outMensaje = LEFT(CONCAT(
+            CASE WHEN @fecha IS NOT NULL THEN CONCAT(CONVERT(CHAR(10), @fecha, 23), N': ') ELSE N'' END,
+            ERROR_MESSAGE()), 200);
     END CATCH;
 END;
 GO
