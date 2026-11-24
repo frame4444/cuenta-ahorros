@@ -75,7 +75,9 @@ El proceso:
 2. exige que la fecha anterior esté terminada;
 3. ejecuta `sp_ProcesarOperacionesDia`;
 4. ejecuta los cierres cuya `FechaFin` corresponde a esa fecha;
-5. marca la fecha como terminada.
+5. marca la fecha como terminada y confirma la transacción del día.
+
+Si falla una operación, un cierre o una apertura, la fecha en curso se revierte completa. Al repetir la corrida, se retoma desde la fecha pendiente más antigua.
 
 ## Cierre de estado de cuenta
 
