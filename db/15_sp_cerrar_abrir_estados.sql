@@ -74,11 +74,13 @@ BEGIN
             @interes DECIMAL(18,2), @montoComision DECIMAL(18,2),
             @codigo INT, @mensaje NVARCHAR(200);
 
+    DECLARE @transaccionPropia BIT = CASE WHEN @@TRANCOUNT = 0 THEN 1 ELSE 0 END;
+
     BEGIN TRY
         IF @inFecha IS NULL OR @inIdCuenta IS NULL
             THROW 50001, N'La fecha y la cuenta son obligatorias.', 1;
 
-        BEGIN TRANSACTION;
+        IF @transaccionPropia = 1 BEGIN TRANSACTION;
 
         SELECT @numeroCuenta = C.NumeroCuenta,
                @saldoActual = C.Saldo,
@@ -218,11 +220,11 @@ BEGIN
 
         SET @saldoActual = (SELECT Saldo FROM dbo.Cuenta WHERE Id = @inIdCuenta);
 
-        COMMIT TRANSACTION;
+        IF @transaccionPropia = 1 COMMIT TRANSACTION;
         SET @outMensaje = N'Estado de cuenta cerrado correctamente.';
     END TRY
     BEGIN CATCH
-        IF XACT_STATE() <> 0 ROLLBACK TRANSACTION;
+        IF @transaccionPropia = 1 AND XACT_STATE() <> 0 ROLLBACK TRANSACTION;
         SET @outResultCode = ERROR_NUMBER();
         SET @outMensaje = LEFT(ERROR_MESSAGE(), 200);
     END CATCH;
@@ -237,17 +239,22 @@ CREATE OR ALTER PROCEDURE dbo.sp_CerrarAbrirEstadosCuenta
 AS
 BEGIN
     SET NOCOUNT ON;
+    SET XACT_ABORT ON;
     SET @outResultCode = 0;
     SET @outMensaje = NULL;
 
     DECLARE @idCuenta INT, @codigo INT, @mensaje NVARCHAR(200), @procesadas INT = 0;
 
+    DECLARE @transaccionPropia BIT = CASE WHEN @@TRANCOUNT = 0 THEN 1 ELSE 0 END;
+
     BEGIN TRY
+        IF @transaccionPropia = 1 BEGIN TRANSACTION;
+
         WHILE 1 = 1
         BEGIN
             SET @idCuenta = NULL;
             SELECT TOP (1) @idCuenta = E.IdCuenta
-            FROM dbo.EstadoCuenta E WITH (UPDLOCK, READPAST)
+            FROM dbo.EstadoCuenta E
             WHERE E.FechaFin = @inFecha AND E.FlagCerrado = 0
             ORDER BY E.Id;
 
@@ -280,9 +287,11 @@ BEGIN
             SET @idCuenta = NULL;
         END;
 
+        IF @transaccionPropia = 1 COMMIT TRANSACTION;
         SET @outMensaje = CONCAT(N'Estados cerrados y abiertos: ', @procesadas, N'.');
     END TRY
     BEGIN CATCH
+        IF @transaccionPropia = 1 AND XACT_STATE() <> 0 ROLLBACK TRANSACTION;
         SET @outResultCode = ERROR_NUMBER();
         SET @outMensaje = LEFT(ERROR_MESSAGE(), 400);
     END CATCH;
